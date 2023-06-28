@@ -40,14 +40,14 @@ services:
     image: ${DOCKER_API}:latest
     build:
       context: ./
-      dockerfile: ./docker/api/api.dockerfile
+      dockerfile: ./docker/api/api-${DOCKER_PHP_VERSION}.dockerfile
       args:
         GIT_REPO: ${GIT_REPO_API}
         GIT_NAME: ${GIT_NAME}
         GIT_EMAIL: ${GIT_EMAIL}
         GIT_BRANCH: ${GIT_BRANCH}
-        GIT_RSA: ${GIT_RSA}
-        GIT_RSA_PUB: ${GIT_RSA_PUB}
+        GIT_RSA: ./ssh-keys/${GIT_RSA}
+        GIT_RSA_PUB: ./ssh-keys/${GIT_RSA_PUB}
         DOCKER_DIR: "./docker/api"
     container_name: ${DOCKER_API}
     hostname: ${DOCKER_API}
@@ -67,7 +67,6 @@ services:
       XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=9000 remote_enable=1
     volumes:
       - api_data:/var/www/html/
-      #- ./docker/api/.env:/var/www/html/.env
       - ./docker/api/supervisor.conf:/etc/supervisor/conf.d/supervisor.conf
       - ./docker/api/apache.conf:/etc/apache2/sites-available/000-default.conf
       - ./docker/api/apache-ssl.conf:/etc/apache2/sites-available/default-ssl.conf
@@ -111,5 +110,5 @@ volumes:
   redis_data:
 
 networks:
-  bkool_v2:
+  network:
     name: ${DOCKER_NETWORK}

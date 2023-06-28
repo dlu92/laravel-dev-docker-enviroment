@@ -1,7 +1,5 @@
 # Docker
 
-This project is to implement the development environment for the technical test projects of BKOOL.
-
 ## Preparation
 
 | **Important** |
@@ -27,10 +25,6 @@ It is important to install the following extensions in our Visual Studio Code fo
 - [onecentlin.laravel-blade](https://marketplace.visualstudio.com/items?itemName=onecentlin.laravel-blade)
 - [bradlc.vscode-tailwindcss](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss)
 - [mhutchie.git-graph](https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph)
-
-**IMPORTANT!**
-
-The `.env` files for the projects must be configured within the `docker` folder at the path `docker/{CONTAINER}/.env` and not in the volume. For example: `docker/api/.env`.
 
 ## Useful Commands
 
