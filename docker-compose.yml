@@ -1,0 +1,115 @@
+version: "3.8"
+name: ${DOCKER_WORKSPACE}
+
+services:
+  db:
+    image: ${DOCKER_DB}:latest
+    build:
+      context: ./
+      dockerfile: ./docker/db/db.dockerfile
+    container_name: ${DOCKER_DB}
+    hostname: ${DOCKER_DB}
+    ports:
+      - "${DOCKER_DB_PORT}:3306"
+    networks:
+      - ${DOCKER_NETWORK}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max_allowed_packet=32505856
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_DATABASE=${DOCKER_DB_DATABASE}
+      - MARIADB_USER=${DOCKER_DB_USER}
+      - MARIADB_PASSWORD=${DOCKER_DB_PASS}
+      - MARIADB_ROOT_HOST=%
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+
+  redis:
+    image: redis:6.2.1-buster
+    container_name: ${DOCKER_REDIS}
+    hostname: ${DOCKER_REDIS}
+    ports:
+      - "${DOCKER_REDIS_PORT}:6379"
+    networks:
+      - ${DOCKER_NETWORK}
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  api:
+    image: ${DOCKER_API}:latest
+    build:
+      context: ./
+      dockerfile: ./docker/api/api.dockerfile
+      args:
+        GIT_REPO: ${GIT_REPO_API}
+        GIT_NAME: ${GIT_NAME}
+        GIT_EMAIL: ${GIT_EMAIL}
+        GIT_BRANCH: ${GIT_BRANCH}
+        GIT_RSA: ${GIT_RSA}
+        GIT_RSA_PUB: ${GIT_RSA_PUB}
+        DOCKER_DIR: "./docker/api"
+    container_name: ${DOCKER_API}
+    hostname: ${DOCKER_API}
+    links:
+      - db
+      - redis
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "${DOCKER_API_PORT}:80"
+      - "${DOCKER_API_PORT_SSL}:443"
+    networks:
+      - ${DOCKER_NETWORK}
+    environment:
+      PHP_XDEBUG_ENABLED: 1
+      XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=9000 remote_enable=1
+    volumes:
+      - api_data:/var/www/html/
+      #- ./docker/api/.env:/var/www/html/.env
+      - ./docker/api/supervisor.conf:/etc/supervisor/conf.d/supervisor.conf
+      - ./docker/api/apache.conf:/etc/apache2/sites-available/000-default.conf
+      - ./docker/api/apache-ssl.conf:/etc/apache2/sites-available/default-ssl.conf
+      - ./docker/ssl/apache.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem
+      - ./docker/ssl/apache.key:/etc/ssl/private/ssl-cert-snakeoil.key
+      - ./docker/ssh/sshd_config:/etc/ssh/sshd_config
+    restart: unless-stopped
+
+  db_manager:
+    image: ${DOCKER_DB_MANAGER}:latest
+    build:
+      context: ./
+      dockerfile: ./docker/db_manager/db_manager.dockerfile
+    container_name: ${DOCKER_DB_MANAGER}
+    hostname: ${DOCKER_DB_MANAGER}
+    links:
+      - db
+    depends_on:
+      - db
+    ports:
+      - "${DOCKER_DB_MANAGER_PORT}:80"
+      - "${DOCKER_DB_MANAGER_PORT_SSL}:443"
+    networks:
+      - ${DOCKER_NETWORK}
+    environment:
+      - PMA_ARBITRARY=0
+      - PMA_HOST=${DOCKER_DB}
+      - PMA_PORT=${DOCKER_DB_PORT}
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    volumes:
+      - ./docker/ssl/apache.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem
+      - ./docker/ssl/apache.key:/etc/ssl/private/ssl-cert-snakeoil.key
+      - ./docker/db_manager/themes/blueberry:/var/www/html/themes/blueberry
+      - ./docker/db_manager/themes/boodark:/var/www/html/themes/boodark
+    restart: unless-stopped
+
+volumes:
+  api_data:
+  db_data:
+  redis_data:
+
+networks:
+  bkool_v2:
+    name: ${DOCKER_NETWORK}
