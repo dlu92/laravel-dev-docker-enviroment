@@ -110,6 +110,10 @@ RUN a2ensite default-ssl
 RUN curl -o /usr/local/bin/composer https://getcomposer.org/composer.phar && \
     chmod +x /usr/local/bin/composer
 
+# Install PHPUnit
+RUN composer global require phpunit/phpunit
+ENV PATH="/root/.composer/vendor/bin:${PATH}"
+
 #Xdebug
 RUN pecl install xdebug-3.2.0 \
     && docker-php-ext-enable xdebug
