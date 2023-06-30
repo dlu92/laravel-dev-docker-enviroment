@@ -15,17 +15,11 @@ ARG GIT_RSA
 ARG GIT_RSA_PUB
 ARG DOCKER_DIR
 
-COPY ${GIT_RSA} /root/.ssh/id_rsa
-COPY ${GIT_RSA_PUB} /root/.ssh/id_rsa.pub
-COPY ${GIT_RSA_PUB} /root/.ssh/authorized_keys
-
+RUN mkdir -p /root/.ssh
 RUN echo "Host *" > /root/.ssh/config
 RUN echo "  StrictHostKeyChecking no" >> /root/.ssh/config
 
 RUN chmod 700 /root/.ssh
-RUN chmod 600 /root/.ssh/id_rsa
-RUN chmod 644 /root/.ssh/id_rsa.pub
-RUN chmod 644 /root/.ssh/authorized_keys
 RUN chmod 400 /root/.ssh/config
 
 # Init ENV

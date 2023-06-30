@@ -4,7 +4,8 @@
 
 | **Important** |
 | --- |
-| >> It is important to note that if you do not wish to do any development and only want to deploy the application, none of the steps in Docker will be necessary. Simply copy the .env.example files from the root directory and the ./docker/api path as .env, each in the directory where the example file is located, and run the Docker Composer.
+| >> It is important to note that if you do not wish to do any development and only want to deploy the application, none of the steps in Docker will be necessary. Simply copy the .env.example files from the root directory to .env, and run the Docker Composer.
+| ¡¡¡ PLEASE, take a good look at the configuration of the .env for and make sure that it suits your needs especially the version of PHP that you want to run.!!!
 | 
 
 

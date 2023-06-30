@@ -73,6 +73,9 @@ services:
       - ./docker/ssl/apache.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem
       - ./docker/ssl/apache.key:/etc/ssl/private/ssl-cert-snakeoil.key
       - ./docker/ssh/sshd_config:/etc/ssh/sshd_config
+      - ./ssh-keys/${GIT_RSA}:/root/.ssh/id_rsa
+      - ./ssh-keys/${GIT_RSA_PUB}:/root/.ssh/id_rsa.pub
+      - ./ssh-keys/${GIT_RSA_PUB}:/root/.ssh/authorized_keys
     restart: unless-stopped
 
   db_manager:
